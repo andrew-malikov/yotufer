@@ -9,6 +9,7 @@ export type ProfileInsertPlaylist = {
 
 export type Profile = {
   name: string;
+  channelId: string;
   playlists: ProfileInsertPlaylist[];
   subscriptions: InsertSubscriptionSnippet[];
 };

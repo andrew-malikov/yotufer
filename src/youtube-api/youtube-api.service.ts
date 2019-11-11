@@ -2,9 +2,9 @@ import { createInterface } from "readline";
 
 import { youtube_v3 } from "googleapis";
 import { OAuth2Client } from "googleapis-common";
-
-import { ClientCredentials } from "../../config/credentials";
 import { Credentials } from "google-auth-library";
+
+import { ClientCredentials } from "../credentials/client-credentials";
 
 export type Youtube = youtube_v3.Youtube;
 
@@ -25,7 +25,7 @@ export class YoutubeApiBuilder {
     return new Promise((resolve, reject) => {
       this.getToken()
         .then(token => {
-          this.client.credentials = JSON.parse(token.toString());
+          this.client.credentials = token;
 
           resolve(this);
         })
@@ -67,21 +67,53 @@ export class YoutubeApiBuilder {
 }
 
 export enum YOUTUBE_RESOURCE_KIND {
-  SUBSCRIPTION = "youtube#subscription"
+  CHANNEL = "youtube#channel"
 }
 
 export class YoutubeSubscriptionApiService {
   constructor(private client: OAuth2Client, private youtube: Youtube) {}
 
-  public addSubscription(channelId: string): Promise<any> {
+  // TODO: remove sourceChannelId
+  // TODO: reject error if limit was get out
+  public addSubscription(
+    sourceChannelId: string,
+    addChannelId: string
+  ): Promise<any> {
     return this.youtube.subscriptions.insert({
       auth: this.client,
+      part: "snippet",
       requestBody: {
-        kind: YOUTUBE_RESOURCE_KIND.SUBSCRIPTION,
         snippet: {
-          channelId: channelId
+          resourceId: {
+            kind: YOUTUBE_RESOURCE_KIND.CHANNEL,
+            channelId: addChannelId
+          }
         }
       }
     });
+  }
+
+  // TODO: remove sourceChannelId
+  public hasSubscription(
+    sourceChannelId: string,
+    channelIdForCheck: string
+  ): Promise<any> {
+    return new Promise((resolve, reject) =>
+      this.youtube.subscriptions
+        .list({
+          auth: this.client,
+          part: "snippet,contentDetails",
+          mine: true,
+          forChannelId: channelIdForCheck
+        })
+        .then(response => {
+          if (response.data.items) {
+            return resolve(response.data.items.length > 0);
+          }
+
+          resolve(false);
+        })
+        .catch(error => reject(error))
+    );
   }
 }
