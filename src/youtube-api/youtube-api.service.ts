@@ -5,6 +5,7 @@ import { OAuth2Client } from "googleapis-common";
 import { Credentials } from "google-auth-library";
 
 import { ClientCredentials } from "../credentials/client-credentials";
+import { GaxiosResponse } from "gaxios";
 
 export type Youtube = youtube_v3.Youtube;
 
@@ -73,12 +74,7 @@ export enum YOUTUBE_RESOURCE_KIND {
 export class YoutubeSubscriptionApiService {
   constructor(private client: OAuth2Client, private youtube: Youtube) {}
 
-  // TODO: remove sourceChannelId
-  // TODO: reject error if limit was get out
-  public addSubscription(
-    sourceChannelId: string,
-    addChannelId: string
-  ): Promise<any> {
+  public addSubscription(channelId: string): Promise<GaxiosResponse<any>> {
     return this.youtube.subscriptions.insert({
       auth: this.client,
       part: "snippet",
@@ -86,25 +82,21 @@ export class YoutubeSubscriptionApiService {
         snippet: {
           resourceId: {
             kind: YOUTUBE_RESOURCE_KIND.CHANNEL,
-            channelId: addChannelId
+            channelId: channelId
           }
         }
       }
     });
   }
 
-  // TODO: remove sourceChannelId
-  public hasSubscription(
-    sourceChannelId: string,
-    channelIdForCheck: string
-  ): Promise<any> {
+  public hasSubscription(channelId: string): Promise<boolean> {
     return new Promise((resolve, reject) =>
       this.youtube.subscriptions
         .list({
           auth: this.client,
           part: "snippet,contentDetails",
           mine: true,
-          forChannelId: channelIdForCheck
+          forChannelId: channelId
         })
         .then(response => {
           if (response.data.items) {

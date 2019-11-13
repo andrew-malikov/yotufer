@@ -10,6 +10,11 @@ import {
 
 import { FileProfileRepository } from "./profile/file-profile.repository";
 import { FileClientCredentialsRepository } from "./credentials/file-client-credentials.repository";
+import {
+  ResolvableError,
+  getChainedResolvableError,
+  resolvableErrors
+} from "./youtube-api/resolvable-error";
 
 export async function run() {
   const args = new Command()
@@ -21,11 +26,13 @@ export async function run() {
     )
     .parse(process.argv);
 
-  const client = (await new YoutubeApiBuilder(
-    await new FileClientCredentialsRepository(
-      args["credentials"]
-    ).getCredentials()
-  ).authorize()).build();
+  const client = (
+    await new YoutubeApiBuilder(
+      await new FileClientCredentialsRepository(
+        args["credentials"]
+      ).getCredentials()
+    ).authorize()
+  ).build();
 
   const profile = await new FileProfileRepository(
     args["profiles"]
@@ -36,12 +43,16 @@ export async function run() {
   }
 
   new ProfileSync(
-    new YoutubeSubscriptionApiService(client, google.youtube("v3"))
+    new YoutubeSubscriptionApiService(client, google.youtube("v3")),
+    getChainedResolvableError([resolvableErrors.byStatusCode])
   ).sync(profile);
 }
 
 class ProfileSync {
-  constructor(private subscriptionService: YoutubeSubscriptionApiService) {}
+  constructor(
+    private subscriptionService: YoutubeSubscriptionApiService,
+    private resolvableError: ResolvableError
+  ) {}
 
   public sync(profile: Profile) {
     let hasError = false;
@@ -51,33 +62,33 @@ class ProfileSync {
         return;
       }
 
-      const channelIdToSubscribe = subscription.snippet.resourceId.channelId;
+      const channelId = subscription.snippet.resourceId.channelId;
       const hasSubscription = await this.subscriptionService.hasSubscription(
-        profile.channelId,
-        channelIdToSubscribe
+        channelId
       );
 
       console.log(
-        `subscription to '${channelIdToSubscribe}' is `,
+        `subscription to '${channelId}' is `,
         hasSubscription ? "active" : "dropped"
       );
 
       if (!hasSubscription) {
         this.subscriptionService
-          .addSubscription(profile.channelId, channelIdToSubscribe)
+          .addSubscription(channelId)
           .then(response => {
+            if (this.resolvableError(response)) {
+              return (hasError = true);
+            }
+
             console.log(
-              `subscription to '${channelIdToSubscribe}' is now active`,
+              `subscription to '${channelId}' is now active`,
               response
             );
           })
           .catch(error => {
             hasError = true;
 
-            console.log(
-              `subscription to '${channelIdToSubscribe}' was failed`,
-              error
-            );
+            console.log(`subscription to '${channelId}' was failed`, error);
           });
       }
     });
