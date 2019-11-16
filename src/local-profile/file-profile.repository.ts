@@ -1,5 +1,6 @@
-import { Profile } from "./models/profile";
 import { readFile } from "fs";
+
+import { Profile } from "./models/profile";
 
 export class FileProfileRepository {
   constructor(private sourcePath: string) {}

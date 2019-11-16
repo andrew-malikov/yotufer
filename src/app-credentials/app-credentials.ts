@@ -1,4 +1,4 @@
-export type ClientCredentials = {
+export type AppCredentials = {
   installed: {
     client_id: string;
     project_id: string;

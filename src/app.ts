@@ -2,19 +2,14 @@ import { Command } from "commander";
 
 import { google } from "googleapis";
 
-import { Profile } from "./profile/models/profile";
-import {
-  YoutubeSubscriptionApiService,
-  YoutubeApiBuilder
-} from "./youtube-api/youtube-api.service";
+import { Profile } from "./local-profile/models/profile";
+import { YoutubeApiBuilder } from "./youtube-api/youtube-api-builder";
+import { YoutubeSubscriptionApiService } from "./youtube-api/services/youtube-subscription-api.service";
 
-import { FileProfileRepository } from "./profile/file-profile.repository";
-import { FileClientCredentialsRepository } from "./credentials/file-client-credentials.repository";
-import {
-  ResolvableError,
-  getChainedResolvableError,
-  resolvableErrors
-} from "./youtube-api/resolvable-error";
+import { FileProfileRepository } from "./local-profile/file-profile.repository";
+import { FileAppCredentialsRepository } from "./app-credentials/file-app-credentials.repository";
+import { ProvidableTokenFactory } from "./youtube-api/auth/providable-token";
+import { API_SCOPES } from "./youtube-api/metadata/api-scopes.enum";
 
 export async function run() {
   const args = new Command()
@@ -22,16 +17,18 @@ export async function run() {
     .requiredOption("-l, --profiles <profiles>", "path to stored profiles")
     .requiredOption(
       "-c, --credentials <credentials>",
-      "path to stored credentials"
+      "path to stored app credentials"
     )
+    .option("-t, --token <token>", "path to stored youtube-api token")
     .parse(process.argv);
 
   const client = (
     await new YoutubeApiBuilder(
-      await new FileClientCredentialsRepository(
+      new ProvidableTokenFactory().getConsoleProvidable(),
+      await new FileAppCredentialsRepository(
         args["credentials"]
       ).getCredentials()
-    ).authorize()
+    ).authorize(API_SCOPES)
   ).build();
 
   const profile = await new FileProfileRepository(
@@ -39,20 +36,16 @@ export async function run() {
   ).getProfileByName(args["profile"]);
 
   if (!profile) {
-    return console.log(`can't find profile '${args["profile"]}'`);
+    return console.log(`Can't find profile '${args["profile"]}'`);
   }
 
   new ProfileSync(
-    new YoutubeSubscriptionApiService(client, google.youtube("v3")),
-    getChainedResolvableError([resolvableErrors.byStatusCode])
+    new YoutubeSubscriptionApiService(client, google.youtube("v3"))
   ).sync(profile);
 }
 
 class ProfileSync {
-  constructor(
-    private subscriptionService: YoutubeSubscriptionApiService,
-    private resolvableError: ResolvableError
-  ) {}
+  constructor(private subscriptionService: YoutubeSubscriptionApiService) {}
 
   public sync(profile: Profile) {
     let hasError = false;
@@ -68,7 +61,7 @@ class ProfileSync {
       );
 
       console.log(
-        `subscription to '${channelId}' is `,
+        `Subscription to '${channelId}' is `,
         hasSubscription ? "active" : "dropped"
       );
 
@@ -76,19 +69,15 @@ class ProfileSync {
         this.subscriptionService
           .addSubscription(channelId)
           .then(response => {
-            if (this.resolvableError(response)) {
-              return (hasError = true);
-            }
-
             console.log(
-              `subscription to '${channelId}' is now active`,
+              `Subscription to '${channelId}' is now active`,
               response
             );
           })
           .catch(error => {
             hasError = true;
 
-            console.log(`subscription to '${channelId}' was failed`, error);
+            console.log(`Subscription to '${channelId}' was failed`, error);
           });
       }
     });

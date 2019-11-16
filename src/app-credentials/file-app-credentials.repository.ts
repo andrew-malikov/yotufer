@@ -1,11 +1,11 @@
 import { readFile } from "fs";
 
-import { ClientCredentials } from "./client-credentials";
+import { AppCredentials } from "./app-credentials";
 
-export class FileClientCredentialsRepository {
+export class FileAppCredentialsRepository {
   constructor(private sourcePath: string) {}
 
-  public getCredentials(): Promise<ClientCredentials> {
+  public getCredentials(): Promise<AppCredentials> {
     return new Promise((resolve, reject) =>
       readFile(this.sourcePath, (error, data) => {
         if (error || !data) {
