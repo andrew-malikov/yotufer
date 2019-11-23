@@ -2,11 +2,11 @@ import { Command } from "commander";
 
 import { google } from "googleapis";
 
-import { Profile } from "./local-profile/models/profile";
+import { Profile } from "./profile/models/profile";
 import { YoutubeApiBuilder } from "./youtube-api/youtube-api-builder";
 import { YoutubeSubscriptionApiService } from "./youtube-api/services/youtube-subscription-api.service";
 
-import { FileProfileRepository } from "./local-profile/file-profile.repository";
+import { FileProfileRepository } from "./profile/file-profile.repository";
 import { FileAppCredentialsRepository } from "./app-credentials/file-app-credentials.repository";
 import { ProvidableTokenFactory } from "./youtube-api/auth/providable-token";
 import { API_SCOPES } from "./youtube-api/metadata/api-scopes.enum";

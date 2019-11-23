@@ -1,3 +1,4 @@
+import { readFile } from "fs";
 import { createInterface } from "readline";
 
 import { Credentials, OAuth2Client } from "google-auth-library";
@@ -33,6 +34,19 @@ export class ProvidableTokenFactory {
 
             resolve(token);
           });
+        });
+      });
+  }
+
+  public getFileProvidable(pathToToken: string): ProvidableToken {
+    return (client: OAuth2Client, scopes: ReadonlyArray<string>) =>
+      new Promise((resolve, reject) => {
+        readFile(pathToToken, (error, token) => {
+          if (error || !token) {
+            return reject(error);
+          }
+
+          resolve(JSON.parse(token.toString()));
         });
       });
   }
