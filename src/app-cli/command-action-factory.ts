@@ -1,6 +1,6 @@
 import { Container } from "inversify";
 
-export type CommandAction<D, A> = (args: A & D) => void;
+export type CommandAction<D, A> = (args: A & D) => Promise<void>;
 
 export type ContextualCommandAction<R, D, A> = (
   getDependencies: (requirements: R) => D
@@ -9,12 +9,14 @@ export type ContextualCommandAction<R, D, A> = (
 export class CommandActionFactory {
   constructor(private container: Container) {}
 
-  public getCommandAction<D, A>(
-    action: ContextualCommandAction<A & { container: Container }, D, A>,
-    getDependencies: (requirements: A & { container: Container }) => D
-  ): CommandAction<D, A> {
-    return action((args: A) =>
-      getDependencies({ ...args, container: this.container })
-    );
+  public getAction<D, A>(
+    action: CommandAction<D, A>,
+    getDependencies: (requirements: A & { container: Container }) => Promise<D>
+  ): (args: A) => Promise<void> {
+    return async (args: A) =>
+      await action({
+        ...args,
+        ...(await getDependencies({ ...args, container: this.container }))
+      });
   }
 }

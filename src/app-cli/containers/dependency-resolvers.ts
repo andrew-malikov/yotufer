@@ -17,12 +17,12 @@ import {
   PopulateDependenciesByArgsAsync,
   PopulateDependencies,
   PopulateDependenciesByArgs
-} from "./dependencies-builder";
+} from "./resolvable-dependencies";
 
 export type YoutubeOAuthClientPopulationArgs = {
   pathToCredentials: string;
   pathToToken?: string;
-  scopes: string[];
+  scopes: ReadonlyArray<string>;
 };
 
 export const PopulateYoutubeOAuthClient: PopulateDependenciesByArgsAsync<YoutubeOAuthClientPopulationArgs> = async (
