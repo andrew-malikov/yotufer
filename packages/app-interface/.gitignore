@@ -9,11 +9,3 @@ build/
 
 # Directory created by dartdoc
 doc/api/
-
-# local credentials
-.cache/
-
-# ts app version
-.typescript-version/
-
-.vscode/
