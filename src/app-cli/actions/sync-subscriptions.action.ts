@@ -1,4 +1,5 @@
 import { Container } from "inversify";
+import { Types } from "../../types";
 
 import { API_SCOPES } from "../../youtube-api/metadata/api-scopes.enum";
 
@@ -48,8 +49,10 @@ export const GetSyncSubscriptionsDependencies = async (
     .populate(PopulateProfileSyncService)
     .populateByArgs(PopulateProfileRepository, requirements)
     .resolve(container => ({
-      service: container.get(ProfileSyncService),
-      profileRepository: container.get(FileProfileRepository)
+      service: container.get<ProfileSyncService>(Types.ProfileSyncService),
+      profileRepository: container.get<FileProfileRepository>(
+        Types.FileProfileRepository
+      )
     }));
 };
 

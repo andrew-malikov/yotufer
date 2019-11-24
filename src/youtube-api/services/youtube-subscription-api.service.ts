@@ -1,3 +1,6 @@
+import { injectable, inject } from "inversify";
+import { Types } from "../../types";
+
 import { GaxiosResponse } from "gaxios";
 
 import { OAuth2Client } from "googleapis-common";
@@ -6,8 +9,14 @@ import { Youtube, Schema$Subscription } from "../types/youtube.aliases";
 
 import { YOUTUBE_RESOURCE_KIND } from "../metadata/youtube-resource-kind.enum";
 
+@injectable()
 export class YoutubeSubscriptionApiService {
-  constructor(private client: OAuth2Client, private youtube: Youtube) {}
+  constructor(
+    @inject(Types.OAuth2Client)
+    private client: OAuth2Client,
+    @inject(Types.Youtube)
+    private youtube: Youtube
+  ) {}
 
   public addSubscription(
     channelId: string

@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import { GetAppCommands } from "./app-cli/app-commands";
 
 export function run(args: string[]) {

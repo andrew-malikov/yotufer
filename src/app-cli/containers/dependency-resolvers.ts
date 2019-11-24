@@ -1,4 +1,5 @@
 import { Container } from "inversify";
+import { Types } from "../../types";
 
 import { OAuth2Client } from "google-auth-library";
 import { google } from "googleapis";
@@ -48,25 +49,31 @@ export const PopulateYoutubeOAuthClient: PopulateDependenciesByArgsAsync<Youtube
     ).authorize(args.scopes)
   ).build();
 
-  container.bind<OAuth2Client>("OAuthClient").toConstantValue(client);
+  container.bind<OAuth2Client>(OAuth2Client).toConstantValue(client);
 };
 
 export const PopulateYoutubeService: PopulateDependencies = (
   container: Container
 ) => {
-  container.bind<Youtube>("Youtube").toDynamicValue(() => google.youtube("v3"));
+  container
+    .bind<Youtube>(Types.Youtube)
+    .toDynamicValue(() => google.youtube("v3"));
 };
 
 export const PopulateYoutubeSubscriptionService: PopulateDependencies = (
   container: Container
 ) => {
-  container.bind<YoutubeSubscriptionApiService>("SubscriptionService");
+  container
+    .bind<YoutubeSubscriptionApiService>(Types.YoutubeSubscriptionApiService)
+    .to(YoutubeSubscriptionApiService);
 };
 
 export const PopulateProfileSyncService: PopulateDependencies = (
   container: Container
 ) => {
-  container.bind<ProfileSyncService>("ProfileSyncService");
+  container
+    .bind<ProfileSyncService>(Types.ProfileSyncService)
+    .to(ProfileSyncService);
 };
 
 export type PopulateProfileRepositoryArgs = { pathToProfiles: string };
@@ -76,6 +83,6 @@ export const PopulateProfileRepository: PopulateDependenciesByArgs<PopulateProfi
   args: PopulateProfileRepositoryArgs
 ) => {
   container
-    .bind<FileProfileRepository>("ProfileRepository")
+    .bind<FileProfileRepository>(Types.FileProfileRepository)
     .toDynamicValue(() => new FileProfileRepository(args.pathToProfiles));
 };

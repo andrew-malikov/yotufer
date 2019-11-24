@@ -1,9 +1,16 @@
+import { injectable, inject } from "inversify";
+import { Types } from "../types";
+
 import { YoutubeSubscriptionApiService } from "../youtube-api/services/youtube-subscription-api.service";
 
 import { Profile } from "./models/profile";
 
+@injectable()
 export class ProfileSyncService {
-  constructor(private subscriptionService: YoutubeSubscriptionApiService) {}
+  constructor(
+    @inject(Types.YoutubeSubscriptionApiService)
+    private subscriptionService: YoutubeSubscriptionApiService
+  ) {}
 
   public syncSubscriptions(profile: Profile) {
     let hasError = false;

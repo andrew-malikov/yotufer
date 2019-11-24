@@ -1,7 +1,10 @@
+import { injectable } from "inversify";
+
 import { readFile } from "fs";
 
 import { Profile } from "./models/profile";
 
+@injectable()
 export class FileProfileRepository {
   constructor(private sourcePath: string) {}
 
