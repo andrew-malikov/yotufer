@@ -4,6 +4,7 @@ environment:
   sdk: '>=2.5.0 <3.0.0'
 
 dependencies:
+  http: any
   googleapis: any
   googleapis_auth: any
 
