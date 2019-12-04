@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 
-import '../models/credentials.dart';
+import 'package:youtube_api/src/models/credentials.dart';
 
 abstract class CredentialsRepository {
   Future<Credentials> get();

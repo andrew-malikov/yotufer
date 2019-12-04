@@ -1,6 +1,6 @@
 import 'package:googleapis/youtube/v3.dart';
 
-import 'package:youtube_api/metadata/youtube_resource_kind.dart';
+import 'package:youtube_api/src/metadata/youtube_resource_kind.dart';
 
 class YoutubeSubscriptionApiService {
   final YoutubeApi _youtube;

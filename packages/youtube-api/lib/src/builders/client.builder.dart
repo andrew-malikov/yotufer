@@ -3,8 +3,8 @@ import 'package:http/http.dart';
 import 'package:googleapis_auth/auth.dart';
 import 'package:googleapis_auth/auth_io.dart';
 
-import 'package:youtube_api/factories/token.factory.dart';
-import 'package:youtube_api/models/credentials.dart';
+import 'package:youtube_api/src/factories/token.factory.dart';
+import 'package:youtube_api/src/models/credentials.dart';
 
 class ClientBuilder {
   final ProvidableToken _getToken;
