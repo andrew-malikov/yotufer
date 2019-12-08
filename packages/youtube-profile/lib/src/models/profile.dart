@@ -1,5 +1,5 @@
-import 'package:youtube_profile/models/playlist.dart';
-import 'package:youtube_profile/models/subscription.dart';
+import 'package:youtube_profile/src/models/playlist.dart';
+import 'package:youtube_profile/src/models/subscription.dart';
 
 class Profile {
   final String name;

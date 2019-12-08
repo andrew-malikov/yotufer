@@ -3,7 +3,7 @@ import 'package:http/http.dart';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:googleapis_auth/auth.dart';
 
-import 'package:youtube_api/repositories/token.repository.dart';
+import 'package:youtube_api/src/repositories/token.repository.dart';
 
 typedef ProvidableToken = Future<AccessCredentials> Function(
     Client client, ClientId clientId, List<String> scopes);

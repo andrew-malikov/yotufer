@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 
-import 'package:youtube_profile/models/profile.dart';
+import 'package:youtube_profile/src/models/profile.dart';
 
 abstract class ProfileRepository {
   Future<List<Profile>> getAll();
