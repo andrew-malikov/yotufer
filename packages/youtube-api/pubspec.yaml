@@ -5,6 +5,7 @@ environment:
 
 dependencies:
   http: any
+  rxdart: any
   googleapis: any
   googleapis_auth: any
 
